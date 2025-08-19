@@ -34,13 +34,13 @@
     const BASE = location.origin + location.pathname.replace(/index\.html?$/,'');
     const SIMS = [
       {
-        slug: "reporting-manuel/",                 // ou "reporting-manuel.html"
+        slug: "reporting-manuel.html",                
         title: "Coût du reporting manuel",
         desc: "Estimez le temps et le coût d’un reporting (collecte, retraitements, mise en forme)."
       },
       // Exemple pour un futur simulateur :
-      // { slug: "simulateur-budgets/", title: "Simulateur budgets", desc: "Projection budgétaire simple." },
-      // { slug: "simulateur-kpi/", title: "Simulateur KPI", desc: "Calcul rapide d’indicateurs." },
+      // { slug: "simulateur-budgets.html", title: "Simulateur budgets", desc: "Projection budgétaire simple." },
+      // { slug: "simulateur-kpi.html", title: "Simulateur KPI", desc: "Calcul rapide d’indicateurs." },
     ];
 
     const eur = (n)=>n.toLocaleString("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0});
