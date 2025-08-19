@@ -1,4 +1,11 @@
 <!-- ===== Calculateur "Coût caché des écarts de reporting" - MyReport ===== -->
+<body>
+  <script>function sendHeight() {
+    const h = document.documentElement.scrollHeight;
+    window.parent.postMessage({iframeHeight: h}, "*");
+  }
+  window.addEventListener("load", sendHeight);
+  window.addEventListener("resize", sendHeight);</script>
 <div id="calc-myreport" class="mrp-wrapper" lang="fr" translate="no">
   <style>
     .mrp-wrapper{--mrp-primary:#0684F8;--mrp-bg:#ffffff;--mrp-text:#1f2937;--mrp-muted:#6b7280;--mrp-soft:#f3f4f6;--mrp-border:#e5e7eb;--mrp-positive:#69d1c5;--mrp-shadow:0 8px 20px rgba(0,0,0,.08)}
@@ -133,4 +140,5 @@
     })();
   </script>
 </div>
+</body>
 <!-- ===== /Calculateur MyReport ===== -->
