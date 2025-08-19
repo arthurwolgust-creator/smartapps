@@ -1,192 +1,190 @@
-import React, { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { Calculator } from "lucide-react";
-
-// === Constants & helpers ===
-const BRAND = {
-  primary: "#0075F2",
-  softBg: "#F7F9FC",
-} as const;
-
-const HOURLY_COST = 60; // € / h — coût horaire moyen chargé
-
-const FREQ_CHOICES = [
-  { label: "Une fois par an", value: 1 },
-  { label: "Deux fois par an", value: 2 },
-  { label: "Une fois par trimestre", value: 4 },
-  { label: "Tous les deux mois", value: 6 },
-  { label: "Tous les mois", value: 12 },
-  { label: "Deux fois par mois", value: 24 },
-  { label: "Toutes les semaines", value: 42 },
-] as const;
-
-const eur = (n: number) =>
-  n.toLocaleString("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  });
-
-function NumberInput({
-  value,
-  onChange,
-  step = 1,
-  min = 0,
-  suffix,
-  className,
-}: {
-  value: number;
-  onChange: (v: number) => void;
-  step?: number;
-  min?: number;
-  suffix?: string;
-  className?: string;
-}) {
-  return (
-    <div className={`relative ${className ?? ""}`}>
-      <input
-        type="number"
-        value={Number.isFinite(value) ? value : 0}
-        min={min}
-        step={step}
-        onChange={(e) => onChange(parseFloat(e.target.value || "0"))}
-        className="w-full rounded-2xl border border-gray-200 bg-white p-3 pr-20 text-sm font-medium text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0075F2] placeholder:text-gray-400"
-      />
-      {suffix ? (
-        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">
-          {suffix}
-        </span>
-      ) : null}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Coût du reporting manuel – Curseur fréquence (MyReport)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style> body { background:#f5f7fb } </style>
+</head>
+<body>
+  <div class="mx-auto max-w-3xl p-6 lg:p-8">
+    <div class="mb-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#0075F2]/15">
+      <div class="flex items-center gap-3">
+        <div class="flex h-12 w-12 items-center justify-center rounded-2xl" style="background:#0075F21A">
+          <span class="text-xl" style="color:#0075F2">∑</span>
+        </div>
+        <div class="flex-1">
+          <h1 class="text-2xl font-semibold text-gray-900">Coût du reporting manuel</h1>
+          <p class="text-sm text-gray-600">Fréquence, équipe et 4 étapes → temps & coûts.</p>
+        </div>
+      </div>
     </div>
-  );
-}
 
-// === Main component ===
-export default function ReportingCostCalculator_FrequencySlider() {
-  // Inputs
-  const [freqIndex, setFreqIndex] = useState<number>(4); // par défaut: "Tous les mois" (index 4)
-  const [people, setPeople] = useState<number>(1);
-  const [collect, setCollect] = useState<number>(3);
-  const [prep, setPrep] = useState<number>(6);
-  const [format, setFormat] = useState<number>(3);
-  const [fix, setFix] = useState<number>(2);
+    <div id="app"></div>
+  </div>
 
-  const freq = FREQ_CHOICES[freqIndex] ?? FREQ_CHOICES[4];
+  <!-- React + ReactDOM UMD (production) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
-  // Computations
-  const computed = useMemo(() => {
-    const hoursPerReportPerPerson = collect + prep + format + fix;
-    const teamHoursPerReport = hoursPerReportPerPerson * people;
-    const costPerReport = teamHoursPerReport * HOURLY_COST;
-    const annualCost = costPerReport * freq.value;
-    return { hoursPerReportPerPerson, teamHoursPerReport, costPerReport, annualCost };
-  }, [collect, prep, format, fix, people, freq.value]);
+  <script>
+  (function(){
+    const { useState, useMemo } = React;
 
-  return (
-    <div className="mx-auto max-w-3xl p-6 lg:p-8">
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
-        {/* Header brand */}
-        <div className="mb-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#0075F2]/15">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl" style={{ backgroundColor: `#0075F21A` }}>
-              <Calculator className="h-6 w-6" style={{ color: BRAND.primary }} />
-            </div>
-            <div className="flex-1">
-              <h1 className="text-2xl font-semibold text-gray-900">Coût du reporting manuel</h1>
-              <p className="text-sm text-gray-600">Calculez combien vous coûte votre reporting</p>
-            </div>
-          </div>
-        </div>
+    // ---- Constantes & helpers ----
+    const HOURLY_COST = 60; // €/h (coût horaire moyen chargé)
+    const FREQ_CHOICES = [
+      { label: "Une fois par an", value: 1 },
+      { label: "Deux fois par an", value: 2 },
+      { label: "Une fois par trimestre", value: 4 },
+      { label: "Tous les deux mois", value: 6 },
+      { label: "Tous les mois", value: 12 },
+      { label: "Deux fois par mois", value: 24 },
+      { label: "Toutes les semaines", value: 42 }
+    ];
+    const eur = (n)=> n.toLocaleString("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0});
+    const h = React.createElement;
 
-        {/* Bloc Variables */}
-        <div className="mb-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
+    // ---- Composants UI ----
+    function NumberInput(props){
+      return h("div",{className:"relative "+(props.className||"")},
+        h("input",{
+          type:"number",
+          value:Number.isFinite(props.value)?props.value:0,
+          min:props.min||0,
+          step:props.step||1,
+          onChange:(e)=>props.onChange(parseFloat(e.target.value||"0")),
+          className:"w-full rounded-2xl border border-gray-200 bg-white p-3 pr-20 text-sm font-medium text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0075F2] placeholder:text-gray-400"
+        }),
+        props.suffix ? h("span",{className:"pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500"}, props.suffix) : null
+      );
+    }
 
-          {/* Fréquence (curseur discret) */}
-          <div className="mb-6">
-            <div className="mb-2 text-sm font-medium text-gray-800">À quelle fréquence effectuez-vous votre reporting ?</div>
-            <div className="flex items-center gap-3">
-              <input
-                type="range"
-                min={0}
-                max={FREQ_CHOICES.length - 1}
-                step={1}
-                value={freqIndex}
-                onChange={(e) => setFreqIndex(parseInt(e.target.value))}
-                className="w-full accent-[#0075F2]"
-              />
-              <span className="whitespace-nowrap rounded-lg bg-[#0075F2]/10 px-3 py-1 text-xs font-semibold text-[#0075F2]">
-                {freq.label}
-              </span>
-            </div>
-            {/* repères visuels */}
-            <div className="mt-2 grid grid-cols-7 text-[10px] text-gray-500">
-              {FREQ_CHOICES.map((c, i) => (
-                <div key={i} className="flex items-center justify-center">
-                  <div
-                    className={`h-1.5 w-1.5 rounded-full ${i === freqIndex ? "bg-[#0075F2]" : "bg-gray-300"}`}
-                    title={`${c.label} (${c.value}/an)`}
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="mt-1 text-xs text-gray-500">Fréquence sélectionnée : <b>{freq.value}</b> / an</div>
-          </div>
+    // ---- App ----
+    function App(){
+      // Entrées
+      const [freqIndex, setFreqIndex] = useState(4); // "Tous les mois" par défaut
+      const [people, setPeople]   = useState(1);
+      const [collect, setCollect] = useState(3);
+      const [prep, setPrep]       = useState(6);
+      const [format, setFormat]   = useState(3);
+      const [fix, setFix]         = useState(2);
 
-          {/* Personnes */}
-          <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <div className="text-sm font-medium text-gray-800">Combien de personnes sont impliquées ?</div>
-              <NumberInput value={people} onChange={setPeople} step={1} suffix="pers" />
-            </div>
-          </div>
+      const freq = FREQ_CHOICES[freqIndex] || FREQ_CHOICES[4];
 
-          {/* Étapes */}
-          <div className="mt-2">
-            <div className="mb-2 text-sm font-semibold text-gray-900">Combien de temps prennent les opérations suivantes pour chaque reporting :</div>
-            <div className="grid grid-cols-12 items-end gap-3 text-xs font-medium text-gray-500">
-              <div className="col-span-7">Opération</div>
-              <div className="col-span-5">Durée <span className="text-gray-400">(heure(s))</span></div>
-            </div>
-            <div className="mt-2 grid grid-cols-12 items-center gap-3">
-              <div className="col-span-7 text-sm text-gray-800">Collecte des données</div>
-              <NumberInput className="col-span-5" value={collect} onChange={setCollect} step={1} suffix="heure(s)" />
-            </div>
-            <div className="mt-2 grid grid-cols-12 items-center gap-3">
-              <div className="col-span-7 text-sm text-gray-800">Retraitement / Consolidation</div>
-              <NumberInput className="col-span-5" value={prep} onChange={setPrep} step={1} suffix="heure(s)" />
-            </div>
-            <div className="mt-2 grid grid-cols-12 items-center gap-3">
-              <div className="col-span-7 text-sm text-gray-800">Mise en forme</div>
-              <NumberInput className="col-span-5" value={format} onChange={setFormat} step={1} suffix="heure(s)" />
-            </div>
-            <div className="mt-2 grid grid-cols-12 items-center gap-3">
-              <div className="col-span-7 text-sm text-gray-800">Correction des erreurs</div>
-              <NumberInput className="col-span-5" value={fix} onChange={setFix} step={1} suffix="heure(s)" />
-            </div>
-          </div>
-        </div>
+      // Calculs
+      const computed = useMemo(()=>{
+        const hoursPerReportPerPerson = collect + prep + format + fix;
+        const teamHoursPerReport = hoursPerReportPerPerson * people;
+        const costPerReport = teamHoursPerReport * HOURLY_COST;
+        const annualCost = costPerReport * freq.value;
+        return { hoursPerReportPerPerson, teamHoursPerReport, costPerReport, annualCost };
+      },[collect, prep, format, fix, people, freq]);
 
-        {/* Bloc Résultats */}
-        <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
-          <div className="mb-3 text-sm font-semibold text-gray-900">Résultats</div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="rounded-xl p-3" style={{ backgroundColor: BRAND.softBg }}>
-              <div className="text-xs text-gray-600">Temps nécessaire pour sortir un reporting</div>
-              <div className="mt-1 text-xl font-semibold text-gray-900">{computed.teamHoursPerReport.toFixed(0)} h</div>
-            </div>
-            <div className="rounded-xl p-3" style={{ backgroundColor: BRAND.softBg }}>
-              <div className="text-xs text-gray-600">Coût pour sortir un reporting</div>
-              <div className="mt-1 text-xl font-semibold text-gray-900">{eur(computed.costPerReport)}</div>
-              <div className="mt-1 text-[11px] text-gray-500">Base : {HOURLY_COST} €/h</div>
-            </div>
-            <div className="rounded-xl p-3" style={{ backgroundColor: BRAND.softBg }}>
-              <div className="text-xs text-gray-600">Coût annuel du reporting manuel</div>
-              <div className="mt-1 text-xl font-semibold text-gray-900">{eur(computed.annualCost)}</div>
-              <div className="mt-1 text-[11px] text-gray-500">Fréquence : {freq.value}/an</div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
+      return h(React.Fragment,null,
+        // Bloc Variables
+        h("div",{className:"mb-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100"},
+          // Fréquence
+          h("div",{className:"mb-6"},
+            h("div",{className:"mb-2 text-sm font-medium text-gray-800"},"À quelle fréquence effectuez-vous votre reporting ?"),
+            h("div",{className:"flex items-center gap-3"},
+              h("input",{
+                type:"range",min:0,max:FREQ_CHOICES.length-1,step:1,value:freqIndex,
+                onChange:(e)=>setFreqIndex(parseInt(e.target.value,10)),
+                className:"w-full accent-[#0075F2]"
+              }),
+              h("span",{className:"whitespace-nowrap rounded-lg bg-[#0075F2]/10 px-3 py-1 text-xs font-semibold text-[#0075F2]"},freq.label)
+            ),
+            h("div",{className:"mt-2 grid grid-cols-7 text-[10px] text-gray-500"},
+              FREQ_CHOICES.map((c,i)=>h("div",{key:i,className:"flex items-center justify-center"},
+                h("div",{className:(i===freqIndex?"bg-[#0075F2]":"bg-gray-300")+" h-1.5 w-1.5 rounded-full", title:c.label+" ("+c.value+"/an)"}))
+              )
+            ),
+            h("div",{className:"mt-1 text-xs text-gray-500"},
+              "Fréquence sélectionnée : ", h("b",null,String(freq.value))," / an"
+            )
+          ),
+          // Personnes
+          h("div",{className:"mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2"},
+            h("div",null,
+              h("div",{className:"text-sm font-medium text-gray-800"},"Combien de personnes sont impliquées ?"),
+              h(NumberInput,{value:people,onChange:setPeople,step:1,suffix:"pers"})
+            )
+          ),
+          // Étapes
+          h("div",{className:"mt-2"},
+            h("div",{className:"mb-2 text-sm font-semibold text-gray-900"},"Combien de temps prennent les opérations suivantes pour chaque reporting :"),
+            h("div",{className:"grid grid-cols-12 items-end gap-3 text-xs font-medium text-gray-500"},
+              h("div",{className:"col-span-7"},"Opération"),
+              h("div",{className:"col-span-5"},"Durée ", h("span",{className:"text-gray-400"},"(heure(s))"))
+            ),
+            h("div",{className:"mt-2 grid grid-cols-12 items-center gap-3"},
+              h("div",{className:"col-span-7 text-sm text-gray-800"},"Collecte des données"),
+              h(NumberInput,{className:"col-span-5",value:collect,onChange:setCollect,step:1,suffix:"heure(s)"})
+            ),
+            h("div",{className:"mt-2 grid grid-cols-12 items-center gap-3"},
+              h("div",{className:"col-span-7 text-sm text-gray-800"},"Retraitement / Consolidation"),
+              h(NumberInput,{className:"col-span-5",value:prep,onChange:setPrep,step:1,suffix:"heure(s)"})
+            ),
+            h("div",{className:"mt-2 grid grid-cols-12 items-center gap-3"},
+              h("div",{className:"col-span-7 text-sm text-gray-800"},"Mise en forme"),
+              h(NumberInput,{className:"col-span-5",value:format,onChange:setFormat,step:1,suffix:"heure(s)"})
+            ),
+            h("div",{className:"mt-2 grid grid-cols-12 items-center gap-3"},
+              h("div",{className:"col-span-7 text-sm text-gray-800"},"Correction des erreurs"),
+              h(NumberInput,{className:"col-span-5",value:fix,onChange:setFix,step:1,suffix:"heure(s)"})
+            )
+          )
+        ),
+        // Bloc Résultats
+        h("div",{className:"rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100"},
+          h("div",{className:"mb-3 text-sm font-semibold text-gray-900"},"Résultats"),
+          h("div",{className:"grid grid-cols-1 gap-3 sm:grid-cols-3"},
+            h("div",{className:"rounded-xl p-3", style:{backgroundColor:"#F7F9FC"}},
+              h("div",{className:"text-xs text-gray-600"},"Temps nécessaire pour sortir un reporting"),
+              h("div",{className:"mt-1 text-xl font-semibold text-gray-900"}, String(Math.round(computed.teamHoursPerReport))+" h")
+            ),
+            h("div",{className:"rounded-xl p-3", style:{backgroundColor:"#F7F9FC"}},
+              h("div",{className:"text-xs text-gray-600"},"Coût pour sortir un reporting"),
+              h("div",{className:"mt-1 text-xl font-semibold text-gray-900"}, eur(computed.costPerReport)),
+              h("div",{className:"mt-1 text-[11px] text-gray-500"},"Base : "+HOURLY_COST+" €/h")
+            ),
+            h("div",{className:"rounded-xl p-3", style:{backgroundColor:"#F7F9FC"}},
+              h("div",{className:"text-xs text-gray-600"},"Coût annuel du reporting manuel"),
+              h("div",{className:"mt-1 text-xl font-semibold text-gray-900"}, eur(computed.annualCost)),
+              h("div",{className:"mt-1 text-[11px] text-gray-500"},"Fréquence : "+freq.value+"/an")
+            )
+          )
+        )
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("app"));
+    root.render(React.createElement(App));
+
+    // ---- (Optionnel) auto-resize pour intégration en iframe ----
+    (function(){
+      var EMBED_ID = "reporting-manuel"; // identifiant si tu utilises le listener côté blog
+      function postHeight(){
+        var h = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+        if (window.parent !== window) {
+          parent.postMessage({type:"myreport-embed-resize", id:EMBED_ID, height:h}, "*");
+        }
+      }
+      var t;
+      function debounced(){ clearTimeout(t); t = setTimeout(postHeight, 120); }
+      if ("ResizeObserver" in window) {
+        var ro = new ResizeObserver(debounced);
+        ro.observe(document.documentElement);
+        ro.observe(document.body);
+      } else {
+        setInterval(postHeight, 600);
+      }
+      window.addEventListener("load", postHeight);
+      window.addEventListener("resize", debounced);
+    })();
+  })();
+  </script>
+</body>
+</html>
