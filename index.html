@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Outils MyReport – Simulateurs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body{background:#f5f7fb}</style>
+</head>
+<body class="min-h-screen">
+  <div class="mx-auto max-w-5xl p-6 lg:p-10">
+    <header class="mb-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-[#0075F2]/15">
+      <div class="flex items-center gap-4">
+        <div class="flex h-12 w-12 items-center justify-center rounded-2xl" style="background:#0075F21A">
+          <span class="text-xl" style="color:#0075F2">∑</span>
+        </div>
+        <div>
+          <h1 class="text-2xl font-semibold text-gray-900">Outils MyReport – Simulateurs</h1>
+          <p class="text-sm text-gray-600">Accédez directement aux simulateurs et copiez le code d’intégration pour votre blog.</p>
+        </div>
+      </div>
+    </header>
+
+    <main id="app" class="grid grid-cols-1 gap-6 md:grid-cols-2"></main>
+
+    <footer class="mt-10 text-center text-xs text-gray-500">
+      Hébergé avec GitHub Pages · MyReport
+    </footer>
+  </div>
+
+  <script>
+    // ⚙️ Liste des simulateurs (ajoute/édite ici)
+    // slug: sous-dossier ou fichier .html selon ton organisation
+    const BASE = location.origin + location.pathname.replace(/index\.html?$/,'');
+    const SIMS = [
+      {
+        slug: "reporting-manuel/",                 // ou "reporting-manuel.html"
+        title: "Coût du reporting manuel",
+        desc: "Estimez le temps et le coût d’un reporting (collecte, retraitements, mise en forme)."
+      },
+      // Exemple pour un futur simulateur :
+      // { slug: "simulateur-budgets/", title: "Simulateur budgets", desc: "Projection budgétaire simple." },
+      // { slug: "simulateur-kpi/", title: "Simulateur KPI", desc: "Calcul rapide d’indicateurs." },
+    ];
+
+    const eur = (n)=>n.toLocaleString("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0});
+
+    function card(sim){
+      const url = (sim.slug.startsWith("http") ? sim.slug : (BASE + sim.slug));
+      const iframe = `<iframe src="${url}" width="100%" height="900" style="border:0;border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.06)" loading="lazy" title="${sim.title}"></iframe>`;
+      return `
+      <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
+        <div class="mb-2 text-sm font-semibold text-gray-900">${sim.title}</div>
+        <p class="text-sm text-gray-600">${sim.desc}</p>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <a href="${url}" class="inline-flex items-center justify-center rounded-xl bg-[#0075F2] px-4 py-2 text-sm font-medium text-white hover:brightness-110" target="_blank" rel="noopener">Ouvrir</a>
+          <button data-url="${url}" class="copy-link inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-medium text-[#0075F2] ring-1 ring-[#0075F2]/30 hover:bg-[#0075F2]/5">Copier le lien</button>
+          <button data-iframe="${encodeURIComponent(iframe)}" class="copy-embed inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-medium text-gray-800 ring-1 ring-gray-200 hover:bg-gray-50">Copier l’iframe</button>
+        </div>
+      </div>`;
+    }
+
+    const app = document.getElementById('app');
+    app.innerHTML = SIMS.map(card).join("");
+
+    function copy(text){ navigator.clipboard.writeText(text).then(()=>alert("Copié ✅")).catch(()=>alert("Impossible de copier — copie manuelle")); }
+
+    document.querySelectorAll('.copy-link').forEach(b=>{
+      b.addEventListener('click', ()=> copy(b.getAttribute('data-url')));
+    });
+    document.querySelectorAll('.copy-embed').forEach(b=>{
+      b.addEventListener('click', ()=> copy(decodeURIComponent(b.getAttribute('data-iframe'))));
+    });
+  </script>
+</body>
+</html>
