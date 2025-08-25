@@ -8,15 +8,18 @@
   window.addEventListener("resize", sendHeight);</script>
 <div id="calc-myreport" class="mrp-wrapper" lang="fr" translate="no">
   <style>
-    .mrp-wrapper{--mrp-primary:#0684F8;--mrp-bg:#ffffff;--mrp-text:#1f2937;--mrp-muted:#6b7280;--mrp-soft:#f3f4f6;--mrp-border:#e5e7eb;--mrp-positive:#69d1c5;--mrp-shadow:0 8px 20px rgba(0,0,0,.08)}
-    .mrp-card{max-width:860px;margin:24px auto;padding:24px;background:var(--mrp-bg);border-radius:16px;box-shadow:var(--mrp-shadow);border:1px solid var(--mrp-border);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue","Noto Sans",Arial,"Apple Color Emoji","Segoe UI Emoji"}
-    .mrp-title{display:flex;align-items:center;gap:12px;font-weight:700;font-size:22px;color:var(--mrp-text);margin:0 0 6px}
+    .mrp-wrapper{--mrp-primary:#0684F8;--mrp-bg:#fff;--mrp-text:#1f2937;--mrp-muted:#6b7280;--mrp-soft:#f3f4f6;--mrp-border:#e5e7eb;--mrp-shadow:0 8px 20px rgba(0,0,0,.08)}
+    .mrp-card{max-width:860px;margin:24px auto;padding:24px;background:var(--mrp-bg);border-radius:16px;box-shadow:var(--mrp-shadow);border:1px solid var(--mrp-border);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue","Noto Sans",Arial}
+    .mrp-title{font-weight:700;font-size:22px;color:var(--mrp-text);margin:0 0 6px}
     .mrp-sub{color:var(--mrp-muted);font-size:14px;margin:0 0 20px}
     .mrp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     @media (max-width:720px){.mrp-grid{grid-template-columns:1fr}}
     .mrp-field{display:flex;flex-direction:column;gap:8px}
     .mrp-label{font-size:14px;font-weight:600;color:var(--mrp-text)}
     .mrp-help{font-size:12px;color:var(--mrp-muted)}
+    .mrp-label-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .mrp-value{font-size:12px;color:var(--mrp-muted);font-weight:700}
+
     /* Range (slider) styling */
     .mrp-range{appearance:none;width:100%;height:10px;border-radius:999px;background:var(--mrp-soft);border:1px solid var(--mrp-border);outline:none}
     .mrp-range:focus{box-shadow:0 0 0 3px rgba(6,132,248,.12)}
@@ -24,20 +27,24 @@
     .mrp-range::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--mrp-primary);border:none;box-shadow:0 2px 6px rgba(0,0,0,.2);cursor:pointer}
     .mrp-range::-webkit-slider-runnable-track{height:10px;border-radius:999px;background:linear-gradient(to right,var(--mrp-primary) var(--mrp-fill,0%),var(--mrp-soft) var(--mrp-fill,0%))}
     .mrp-range::-moz-range-track{height:10px;border-radius:999px;background:var(--mrp-soft)}
-    .mrp-value{font-size:12px;color:var(--mrp-muted);font-weight:700}
-    .mrp-label-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
-    .mrp-result{margin-top:20px;padding:18px;border-radius:14px;background:#fff;border:1px dashed var(--mrp-primary)}
-    .mrp-kpis{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
+
+    /* Results */
+    .mrp-result{margin-top:20px;padding:18px;border-radius:14px;background:linear-gradient(180deg,#ffffff,#f9fbff);border:1px dashed var(--mrp-primary)}
+    .mrp-kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:12px}
     @media (max-width:560px){.mrp-kpis{grid-template-columns:1fr}}
     .mrp-kpi{background:var(--mrp-soft);border:1px solid var(--mrp-border);border-radius:12px;padding:14px}
-    .mrp-kpi .k-label{font-size:12px;color:var(--mrp-muted);margin-bottom:6px}
-    .mrp-kpi .k-value{font-size:20px;font-weight:800;color:var(--mrp-text)}
-    .mrp-note{font-size:12px;color:var(--mrp-muted);margin-top:10px}
+    .mrp-kpi .k-label{font-size:11px;color:var(--mrp-muted);margin-bottom:6px;letter-spacing:.3px;text-transform:uppercase}
+    .mrp-kpi .k-value{font-size:26px;font-weight:800;color:var(--mrp-primary);line-height:1.1}
+    .mrp-summary{margin-top:12px;font-size:14px;color:var(--mrp-text);font-weight:500}
+
+    /* CTA */
+    .mrp-cta{margin-top:16px}
+    .mrp-btn{cursor:pointer;border:1px solid var(--mrp-primary);background:var(--mrp-primary);color:#fff;border-radius:999px;padding:12px 18px;font-weight:700;font-size:14px;text-decoration:none;display:inline-block}
   </style>
 
-  <div class="mrp-card" role="form" aria-labelledby="mrp-title" aria-describedby="mrp-sub">
-    <h3 id="mrp-title" class="mrp-title">Combien vous coûtent vos écarts de chiffres ?</h3>
-    <p id="mrp-sub" class="mrp-sub">Estimez le coût annuel des réunions passées à réconcilier marketing et commerciaux.</p>
+  <div class="mrp-card">
+    <h3 class="mrp-title">Combien vous coûtent vos écarts de chiffres ?</h3>
+    <p class="mrp-sub">Estimez le coût direct en temps et en argent des réunions passées à “réconcilier” les données.</p>
 
     <div class="mrp-grid" id="mrp-fields">
       <div class="mrp-field">
@@ -45,8 +52,7 @@
           <label class="mrp-label" for="mrp-meetings">Réunions par mois</label>
           <span class="mrp-value" id="val-meetings">4</span>
         </div>
-        <input id="mrp-meetings" class="mrp-range" type="range" min="0" max="12" step="1" value="4" aria-describedby="help-meetings">
-        <div id="help-meetings" class="mrp-help">Comités de pilotage, réunions de réconciliation…</div>
+        <input id="mrp-meetings" class="mrp-range" type="range" min="0" max="8" step="1" value="4">
       </div>
 
       <div class="mrp-field">
@@ -54,7 +60,7 @@
           <label class="mrp-label" for="mrp-participants">Participants par réunion</label>
           <span class="mrp-value" id="val-participants">6</span>
         </div>
-        <input id="mrp-participants" class="mrp-range" type="range" min="1" max="20" step="1" value="6">
+        <input id="mrp-participants" class="mrp-range" type="range" min="1" max="10" step="1" value="6">
       </div>
 
       <div class="mrp-field">
@@ -62,36 +68,38 @@
           <label class="mrp-label" for="mrp-duration">Durée moyenne (heures)</label>
           <span class="mrp-value" id="val-duration">2</span>
         </div>
-        <input id="mrp-duration" class="mrp-range" type="range" min="0" max="4" step="0.25" value="2">
+        <input id="mrp-duration" class="mrp-range" type="range" min="1" max="4" step="1" value="2">
       </div>
 
       <div class="mrp-field">
         <div class="mrp-label-row">
           <label class="mrp-label" for="mrp-rate">Coût horaire moyen / participant (€)</label>
-          <span class="mrp-value" id="val-rate">80 €</span>
+          <span class="mrp-value" id="val-rate">60 €</span>
         </div>
-        <input id="mrp-rate" class="mrp-range" type="range" min="20" max="200" step="5" value="80">
+        <input id="mrp-rate" class="mrp-range" type="range" min="20" max="120" step="5" value="60">
       </div>
     </div>
 
     <div class="mrp-result" aria-live="polite" aria-atomic="true">
       <div class="mrp-kpis">
         <div class="mrp-kpi">
-          <div class="k-label">Coût annuel estimé</div>
-          <div class="k-value" id="mrp-cost">—</div>
+          <div class="k-label">Coût annuel</div>
+          <div class="k-value" id="mrp-cost-year">—</div>
         </div>
         <div class="mrp-kpi">
-          <div class="k-label">Temps perdu / an</div>
-          <div class="k-value" id="mrp-hours">—</div>
+          <div class="k-label">Coût mensuel</div>
+          <div class="k-value" id="mrp-cost-month">—</div>
+        </div>
+        <div class="mrp-kpi">
+          <div class="k-label">Jours perdus</div>
+          <div class="k-value" id="mrp-days">—</div>
         </div>
       </div>
-      <p class="mrp-note">
-        Estimation basée sur la formule <strong>réunions/mois × participants × durée (h) × coût horaire × 12</strong>.<br>
-        N’inclut pas les décisions retardées, opportunités manquées, ni les retraitements hors réunion.
-      </p>
+      <p class="mrp-summary" id="mrp-summary">—</p>
+      <div class="mrp-cta">
+        <a href="https://www.myreport.fr/ressource/demo-myreport/?utm_source=article&utm_medium=Calculateur+temps+perdu&utm_campaign=Diff%C3%A9rences+marketing+et+commerce" class="mrp-btn">Concevez votre reporting avec MyReport</a>
+      </div>
     </div>
-
-    <span class="mrp-sr" id="mrp-announce"></span>
   </div>
 
   <script>
@@ -99,9 +107,11 @@
       const fmtEUR = new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0});
       const fmtNUM = new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0});
       const $ = (id)=>document.getElementById(id);
+
       const inputs = ['mrp-meetings','mrp-participants','mrp-duration','mrp-rate'].map($);
       const labels = { meetings: $('val-meetings'), participants: $('val-participants'), duration: $('val-duration'), rate: $('val-rate') };
-      const costEl = $('mrp-cost'), hoursEl = $('mrp-hours');
+
+      const outYear = $('mrp-cost-year'), outMonth = $('mrp-cost-month'), outDays = $('mrp-days'), summary = $('mrp-summary');
 
       function sanitize(n, fallback=0){ n = Number(n); return isFinite(n)&&n>=0 ? n : fallback; }
 
@@ -114,16 +124,27 @@
         const hoursPerMonth = meetings * parts * dur;
         const hoursPerYear  = hoursPerMonth * 12;
         const costPerYear   = hoursPerYear * rate;
+        const costPerMonth  = costPerYear / 12;
+        const daysLost      = hoursPerYear / 7;
 
-        hoursEl.textContent = fmtNUM.format(Math.round(hoursPerYear)) + ' h';
-        costEl.textContent  = fmtEUR.format(Math.round(costPerYear));
+        outYear.textContent  = fmtEUR.format(Math.round(costPerYear));
+        outMonth.textContent = fmtEUR.format(Math.round(costPerMonth));
+        outDays.textContent  = fmtNUM.format(Math.round(daysLost)) + ' j';
+
+        // === Résumés alternatifs ===
+        const alt1 = `Ces écarts représentent près de ${fmtNUM.format(Math.round(daysLost))} jours de travail perdus par an — soit un coût caché de ${fmtEUR.format(Math.round(costPerYear))}.`;
+        const alt2 = `Chaque année, vous laissez filer environ ${fmtNUM.format(Math.round(daysLost))} jours de travail, pour une facture proche de ${fmtEUR.format(Math.round(costPerYear))}.`;
+        const alt3 = `Au total : ${fmtNUM.format(Math.round(daysLost))} jours et ${fmtEUR.format(Math.round(costPerYear))} gaspillés chaque année à réconcilier vos chiffres.`;
+
+        // Choisir ici laquelle afficher par défaut
+        summary.textContent = `Ces écarts représentent près de ${fmtNUM.format(Math.round(daysLost))} jours de travail perdus par an — soit un coût caché de ${fmtEUR.format(Math.round(costPerYear))} !`;
       }
 
       function updateLabels(){
-        labels.meetings.textContent = $('mrp-meetings').value;
-        labels.participants.textContent = $('mrp-participants').value;
-        labels.duration.textContent = $('mrp-duration').value;
-        labels.rate.textContent = $('mrp-rate').value + ' €';
+        labels.meetings.textContent    = $('mrp-meetings').value;
+        labels.participants.textContent= $('mrp-participants').value;
+        labels.duration.textContent    = $('mrp-duration').value;
+        labels.rate.textContent        = $('mrp-rate').value + ' €';
       }
 
       function updateTrackFill(el){
@@ -140,5 +161,4 @@
     })();
   </script>
 </div>
-</body>
-<!-- ===== /Calculateur MyReport ===== -->
+<!-- ===== /Calculateur MyReport v3 ===== -->
