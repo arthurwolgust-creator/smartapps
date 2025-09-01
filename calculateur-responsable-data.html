@@ -7,9 +7,7 @@
 
   <!-- Tailwind CSS (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = { theme: { extend: {} } };
-  </script>
+  <script> tailwind.config = { theme: { extend: {} } }; </script>
 
   <!-- React 18 UMD + ReactDOM -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -32,33 +30,40 @@
       return new Intl.NumberFormat("fr-FR", options).format(n);
     }
 
+    // Nouvelle grille de complexité (max 10 sources)
+    // Faible 1–2 (+0%), Modérée 3–4 (+15%), Élevée 5–6 (+30%), Forte 7–10 (+50%)
     function useComplexity(sources) {
-      const memo = React.useMemo(() => {
+      return React.useMemo(() => {
         let m = 1.0, l = "Faible", d = "+0%";
-        if (sources >= 4 && sources <= 6) { m = 1.15; l = "Modérée"; d = "+15%"; }
-        else if (sources >= 7 && sources <= 10) { m = 1.30; l = "Élevée"; d = "+30%"; }
-        else if (sources >= 11 && sources <= 15) { m = 1.50; l = "Forte"; d = "+50%"; }
-        else if (sources >= 16) { m = 1.80; l = "Critique"; d = "+80%"; }
+        if (sources >= 3 && sources <= 4) { m = 1.15; l = "Modérée"; d = "+15%"; }
+        else if (sources >= 5 && sources <= 6) { m = 1.30; l = "Élevée"; d = "+30%"; }
+        else if (sources >= 7 && sources <= 10) { m = 1.50; l = "Forte"; d = "+50%"; }
+        // 1–2 reste "Faible" (+0%)
         return { multiplier: m, label: l, detail: d };
       }, [sources]);
-      return memo;
     }
 
     function CalculateurRetraitements() {
       const [hoursPerPerson, setHoursPerPerson] = useState(4);
       const [people, setPeople] = useState(2);
       const [hourlyCost, setHourlyCost] = useState(60);
-      const [sources, setSources] = useState(6);
+      const [sources, setSources] = useState(6); // 1–10
 
       const { multiplier, label: complexityLabel, detail: complexityDetail } = useComplexity(sources);
 
-      const effectiveHours = useMemo(() => +(hoursPerPerson * people * multiplier).toFixed(1), [hoursPerPerson, people, multiplier]);
-      const weeklyCost = useMemo(() => Math.round(effectiveHours * hourlyCost), [effectiveHours, hourlyCost]);
+      const effectiveHours = useMemo(
+        () => +(hoursPerPerson * people * multiplier).toFixed(1),
+        [hoursPerPerson, people, multiplier]
+      );
+      const weeklyCost = useMemo(
+        () => Math.round(effectiveHours * hourlyCost),
+        [effectiveHours, hourlyCost]
+      );
 
       const monthlyHours = useMemo(() => +(effectiveHours * 4.3).toFixed(1), [effectiveHours]);
-      const monthlyCost = useMemo(() => Math.round(weeklyCost * 4.3), [weeklyCost]);
-      const annualHours = useMemo(() => +(effectiveHours * 52).toFixed(1), [effectiveHours]);
-      const annualCost = useMemo(() => Math.round(weeklyCost * 52), [weeklyCost]);
+      const monthlyCost  = useMemo(() => Math.round(weeklyCost * 4.3), [weeklyCost]);
+      const annualHours  = useMemo(() => +(effectiveHours * 52).toFixed(1), [effectiveHours]);
+      const annualCost   = useMemo(() => Math.round(weeklyCost * 52), [weeklyCost]);
 
       // Mobile : bouton pour ouvrir/fermer le calculateur
       const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -125,17 +130,17 @@
                   <p className="mt-2 text-xs text-gray-600">Plage 10–100 €/h. Salaire chargé + coûts externes éventuels.</p>
                 </div>
 
-                {/* Sources */}
+                {/* Sources (MAJ : max 10) */}
                 <div className="p-4 rounded-xl border border-gray-200 bg-gray-50/60">
                   <label htmlFor="sources" className="flex justify-between font-medium text-gray-800 mb-2">
                     <span>Nombre de sources de données</span>
                     <span className="text-[#0075F2]">{sources}</span>
                   </label>
-                  <input id="sources" type="range" min={1} max={20} step={1} value={sources}
+                  <input id="sources" type="range" min={1} max={10} step={1} value={sources}
                          onChange={(e) => setSources(parseInt(e.target.value, 10))}
                          className="w-full accent-[#0075F2]" />
                   <p className="mt-2 text-xs text-gray-600">
-                    Pondère la charge selon l’hétérogénéité de votre SI. <span className="font-medium">Complexité : {complexityLabel} ({complexityDetail})</span> · Coefficient {multiplier.toFixed(2)}
+                    Plage 1–10. <span className="font-medium">Complexité : {complexityLabel} ({complexityDetail})</span> · Coefficient {multiplier.toFixed(2)}
                   </p>
                 </div>
 
@@ -211,6 +216,24 @@
 
     const root = ReactDOM.createRoot(document.getElementById("root"));
     root.render(<CalculateurRetraitements />);
+  </script>
+
+  <!-- Émetteur postMessage pour auto-redimensionner l'iframe -->
+  <script>
+    (function () {
+      function sendHeight() {
+        var h = Math.max(
+          document.documentElement.scrollHeight,
+          document.body ? document.body.scrollHeight : 0
+        );
+        // IMPORTANT : remplace '*' par l’URL exacte de ton site WP pour plus de sécurité
+        window.parent.postMessage({ type: 'calc-resize', height: h }, '*');
+      }
+      window.addEventListener('load', sendHeight);
+      if ('ResizeObserver' in window) { new ResizeObserver(sendHeight).observe(document.body); }
+      if (document.fonts && document.fonts.ready) { document.fonts.ready.then(sendHeight); }
+      window.addEventListener('resize', sendHeight);
+    })();
   </script>
 </body>
 </html>
