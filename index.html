@@ -34,30 +34,58 @@
     const BASE = location.origin + location.pathname.replace(/index\.html?$/,'');
     const SIMS = [
       {
-        slug: "reporting-manuel.html",                
+        slug: "reporting-manuel.html",
         title: "Coût du reporting manuel",
         desc: "Estimez le temps et le coût d’un reporting (collecte, retraitements, mise en forme)."
       },
-      { 
-        slug: "cout-cache-ecart.html",                
+      {
+        slug: "cout-cache-ecart.html",
         title: "Coût caché des écarts de reporting",
         desc: "Visualisez le coût caché des écarts de reporting."
       },
-       { 
-        slug: "calculateur-responsable-data.html",                
+      {
+        slug: "calculateur-responsable-data.html",
         title: "Calculateur Responsable Data",
         desc: "Calculateur Responsable Data"
       },
-      // Exemple pour un futur simulateur :
-      // { slug: "simulateur-budgets.html", title: "Simulateur budgets", desc: "Projection budgétaire simple." },
-      // { slug: "simulateur-kpi.html", title: "Simulateur KPI", desc: "Calcul rapide d’indicateurs." },
     ];
 
-    const eur = (n)=>n.toLocaleString("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0});
+    // Utilitaire: ID unique & propre pour l’iframe selon le slug
+    function toIframeId(slug) {
+      return "calc-iframe-" + String(slug||"app")
+        .replace(/^https?:\/\//,'')
+        .replace(/[^a-z0-9]+/gi,'-')
+        .replace(/(^-|-$)/g,'')
+        .toLowerCase();
+    }
 
     function card(sim){
       const url = (sim.slug.startsWith("http") ? sim.slug : (BASE + sim.slug));
+      const origin = new URL(url).origin;           // ex: https://arthurwolgust-creator.github.io
+      const iframeId = toIframeId(sim.slug);
+      // 🔽 EMBED complet: IFRAME + SCRIPT auto-resize (type: "calc-resize")
+      const embed = `<iframe
+id="${iframeId}"
+src="${url}"
+width="100%"
+style="border:0; border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,.06)"
+loading="lazy"
+></iframe>
+<script>
+// Écoute les messages envoyés par la page embarquée
+window.addEventListener('message', function (event) {
+  // Sécurise : on accepte uniquement l'origine du simulateur
+  if (event.origin !== '${origin}') return;
+  if (event.data && event.data.type === 'calc-resize' && typeof event.data.height === 'number') {
+    var ifr = document.getElementById('${iframeId}');
+    if (ifr) { ifr.style.height = event.data.height + 'px'; }
+  }
+});
+<\/script>`;
+
+      // Ancien: simple iframe (on le garde pour le bouton "Copier le lien")
       const iframe = `<iframe src="${url}" width="100%" height="900" style="border:0;border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.06)" loading="lazy" title="${sim.title}"></iframe>`;
+
       return `
       <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
         <div class="mb-2 text-sm font-semibold text-gray-900">${sim.title}</div>
@@ -65,7 +93,7 @@
         <div class="mt-4 flex flex-wrap gap-2">
           <a href="${url}" class="inline-flex items-center justify-center rounded-xl bg-[#0075F2] px-4 py-2 text-sm font-medium text-white hover:brightness-110" target="_blank" rel="noopener">Ouvrir</a>
           <button data-url="${url}" class="copy-link inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-medium text-[#0075F2] ring-1 ring-[#0075F2]/30 hover:bg-[#0075F2]/5">Copier le lien</button>
-          <button data-iframe="${encodeURIComponent(iframe)}" class="copy-embed inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-medium text-gray-800 ring-1 ring-gray-200 hover:bg-gray-50">Copier l’iframe</button>
+          <button data-embed="${encodeURIComponent(embed)}" class="copy-embed inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-medium text-gray-800 ring-1 ring-gray-200 hover:bg-gray-50">Copier l’iframe</button>
         </div>
       </div>`;
     }
@@ -73,13 +101,22 @@
     const app = document.getElementById('app');
     app.innerHTML = SIMS.map(card).join("");
 
-    function copy(text){ navigator.clipboard.writeText(text).then(()=>alert("Copié ✅")).catch(()=>alert("Impossible de copier — copie manuelle")); }
+    function copy(text){
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(()=>alert("Copié ✅")).catch(()=>fallback(text));
+      } else { fallback(text); }
+      function fallback(t){
+        const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); alert("Copié ✅"); } catch(e){ alert("Impossible de copier — copie manuelle"); }
+        document.body.removeChild(ta);
+      }
+    }
 
     document.querySelectorAll('.copy-link').forEach(b=>{
       b.addEventListener('click', ()=> copy(b.getAttribute('data-url')));
     });
     document.querySelectorAll('.copy-embed').forEach(b=>{
-      b.addEventListener('click', ()=> copy(decodeURIComponent(b.getAttribute('data-iframe'))));
+      b.addEventListener('click', ()=> copy(decodeURIComponent(b.getAttribute('data-embed'))));
     });
   </script>
 </body>
