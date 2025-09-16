@@ -6,6 +6,23 @@
   }
   window.addEventListener("load", sendHeight);
   window.addEventListener("resize", sendHeight);</script>
+<!-- Émetteur postMessage pour auto-redimensionner l'iframe -->
+<script>
+    (function () {
+      function sendHeight() {
+        var h = Math.max(
+          document.documentElement.scrollHeight,
+          document.body ? document.body.scrollHeight : 0
+        );
+        // IMPORTANT : remplace '*' par l’URL exacte de ton site WP pour plus de sécurité
+        window.parent.postMessage({ type: 'calc-resize', height: h }, '*');
+      }
+      window.addEventListener('load', sendHeight);
+      if ('ResizeObserver' in window) { new ResizeObserver(sendHeight).observe(document.body); }
+      if (document.fonts && document.fonts.ready) { document.fonts.ready.then(sendHeight); }
+      window.addEventListener('resize', sendHeight);
+    })();
+</script>
 <div id="calc-myreport" class="mrp-wrapper" lang="fr" translate="no">
   <style>
     .mrp-wrapper{--mrp-primary:#0684F8;--mrp-bg:#fff;--mrp-text:#1f2937;--mrp-muted:#6b7280;--mrp-soft:#f3f4f6;--mrp-border:#e5e7eb;--mrp-shadow:0 8px 20px rgba(0,0,0,.08)}
