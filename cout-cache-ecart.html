@@ -1,3 +1,25 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculateur – Coûts cachés</title>
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script> tailwind.config = { theme: { extend: {} } }; </script>
+
+  <!-- React 18 UMD + ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+
+  <!-- Babel Standalone (pour transpiler JSX/TS directement dans le navigateur) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body { background: #f7fafc; } /* gris léger */
+  </style>
+</head>
 <!-- ===== Calculateur "Coût caché des écarts de reporting" - MyReport ===== -->
 <body>
   <script>function sendHeight() {
@@ -6,23 +28,6 @@
   }
   window.addEventListener("load", sendHeight);
   window.addEventListener("resize", sendHeight);</script>
-<!-- Émetteur postMessage pour auto-redimensionner l'iframe -->
-<script>
-    (function () {
-      function sendHeight() {
-        var h = Math.max(
-          document.documentElement.scrollHeight,
-          document.body ? document.body.scrollHeight : 0
-        );
-        // IMPORTANT : remplace '*' par l’URL exacte de ton site WP pour plus de sécurité
-        window.parent.postMessage({ type: 'calc-resize', height: h }, '*');
-      }
-      window.addEventListener('load', sendHeight);
-      if ('ResizeObserver' in window) { new ResizeObserver(sendHeight).observe(document.body); }
-      if (document.fonts && document.fonts.ready) { document.fonts.ready.then(sendHeight); }
-      window.addEventListener('resize', sendHeight);
-    })();
-</script>
 <div id="calc-myreport" class="mrp-wrapper" lang="fr" translate="no">
   <style>
     .mrp-wrapper{--mrp-primary:#0684F8;--mrp-bg:#fff;--mrp-text:#1f2937;--mrp-muted:#6b7280;--mrp-soft:#f3f4f6;--mrp-border:#e5e7eb;--mrp-shadow:0 8px 20px rgba(0,0,0,.08)}
@@ -178,4 +183,21 @@
     })();
   </script>
 </div>
-<!-- ===== /Calculateur MyReport v3 ===== -->
+  <script>
+    (function () {
+      function sendHeight() {
+        var h = Math.max(
+          document.documentElement.scrollHeight,
+          document.body ? document.body.scrollHeight : 0
+        );
+        // IMPORTANT : remplace '*' par l’URL exacte de ton site WP pour plus de sécurité
+        window.parent.postMessage({ type: 'calc-resize', height: h }, '*');
+      }
+      window.addEventListener('load', sendHeight);
+      if ('ResizeObserver' in window) { new ResizeObserver(sendHeight).observe(document.body); }
+      if (document.fonts && document.fonts.ready) { document.fonts.ready.then(sendHeight); }
+      window.addEventListener('resize', sendHeight);
+    })();
+  </script>
+</body>
+</html>
